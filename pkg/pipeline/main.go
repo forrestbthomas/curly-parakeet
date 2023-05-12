@@ -5,24 +5,22 @@ import (
 	"github.com/forrestbthomas/curly-parakeet/pkg/types"
 )
 
+type Job struct {
+	fn    types.TaskWork
+	task  task.Tasker
+	needs []task.Tasker
+}
+
 type Pipeliner interface {
 	Generator([]types.TaskDefinition, ...task.Tasker) []types.TaskDefinition
 }
 
 type Pipe struct{}
 
-type TaskMap map[task.Tasker][]types.TaskWork
-
-func (p *Pipe) Generator(taskMap TaskMap) []types.TaskDefinition {
-	tasks := []types.TaskDefinition{}
-	for task, fns := range taskMap {
-		for _, fn := range fns {
-			tasks = append(tasks, task.Generator(fn))
-		}
+func New(jobs []Job) []types.TaskDefinition {
+	defs := []types.TaskDefinition{}
+	for _, job := range jobs {
+		defs = append(defs, job.task.Generator(job.fn))
 	}
-	return tasks
-}
-
-func New() *Pipe {
-	return &Pipe{}
+	return defs
 }
