@@ -1,6 +1,8 @@
 package task
 
-import "github.com/forrestbthomas/curly-parakeet/pkg/types"
+import (
+	"github.com/forrestbthomas/curly-parakeet/pkg/types"
+)
 
 type Task struct {
 	Name string

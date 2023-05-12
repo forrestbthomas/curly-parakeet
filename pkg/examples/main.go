@@ -4,8 +4,8 @@ import "fmt"
 
 // Fan In
 func Sum(i int, ch chan int) {
-	fmt.Println("adding", i)
 	j := <-ch
+	fmt.Println("adding", i, j)
 	ch <- i + j
 }
 

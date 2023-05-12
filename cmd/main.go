@@ -30,15 +30,8 @@ func main() {
 		},
 	}
 	pipe := pipeline.New(jobs)
-
-	// generate input task
-	input := InputTask(ints)
-
-	// run tasks
-	for _, task := range pipe {
-		input = task(input)
-	}
-
-	fmt.Println(<-input)
+	ch := InputTask(ints)
+	out := pipe.Run(ch)
+	fmt.Println(<-out)
 
 }
