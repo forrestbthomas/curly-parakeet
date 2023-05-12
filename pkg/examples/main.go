@@ -1,7 +1,26 @@
-package task
+package examples
 
 import "fmt"
 
+// Fan In
+func Sum(i int, ch chan int) {
+	fmt.Println("adding", i)
+	j := <-ch
+	ch <- i + j
+}
+
+// Fan Out
+func ListMultiples(i int, ch chan int) {
+	fmt.Println("listing multiples", i)
+	for j := i; j > 0; {
+		if j%2 == 0 {
+			ch <- j
+		}
+		j = j / 3
+	}
+}
+
+// Parallel
 func Filter(i int, ch chan int) {
 	fmt.Println("filtering", i)
 	if i%2 != 0 {

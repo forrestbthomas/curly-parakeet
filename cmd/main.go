@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 
+	"github.com/forrestbthomas/curly-parakeet/pkg/examples"
 	"github.com/forrestbthomas/curly-parakeet/pkg/pipeline"
+	fi "github.com/forrestbthomas/curly-parakeet/pkg/task/fanin"
 )
 
 func InputTask(ints []int) chan int {
@@ -20,7 +22,13 @@ func main() {
 	ints := []int{1, 2, 3, 4, 5}
 
 	// Pipeline
-	jobs := []pipeline.Job{}
+	jobs := []pipeline.Job{
+		{
+			Fn:    examples.Sum,
+			Task:  fi.Task{},
+			Needs: nil,
+		},
+	}
 	pipe := pipeline.New(jobs)
 
 	// generate input task
