@@ -7,6 +7,7 @@ import (
 	"github.com/forrestbthomas/curly-parakeet/pkg/pipeline"
 	fi "github.com/forrestbthomas/curly-parakeet/pkg/task/fanin"
 	fo "github.com/forrestbthomas/curly-parakeet/pkg/task/fanout"
+	p "github.com/forrestbthomas/curly-parakeet/pkg/task/parallel"
 )
 
 func InputTask(ints []int) chan int {
@@ -34,14 +35,19 @@ func main() {
 			Task:  &fo.FanOut{},
 			Needs: nil,
 		},
+		{
+			Fn:    examples.Doubler,
+			Task:  &p.Parallel{},
+			Needs: nil,
+		},
 	}
+
 	pipe := pipeline.New(jobs)
 	ch := InputTask(ints)
 	close(ch)
+
 	out := pipe.Run(ch)
 	close(out)
-	fmt.Println(len(out))
-
 	for el := range out {
 		fmt.Println(el)
 	}

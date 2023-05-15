@@ -2,7 +2,6 @@ package task
 
 import (
 	"log"
-	"sync"
 
 	"github.com/forrestbthomas/curly-parakeet/pkg/task"
 )
@@ -27,19 +26,26 @@ func (f *FanOut) Set(s string, v int) {
 }
 
 func (f *FanOut) Generator(fn task.TaskWork) task.TaskDefinition {
-	var wg sync.WaitGroup
-	output := make(chan int)
+	done := make(chan int, 1)
+	tmpSlice := []int{}
+	tmpChan := make(chan int)
 	return func(input chan int) chan int {
 		if len(input) == 0 || len(input) > 1 {
 			log.Fatal("Cannot FanOut with less than or more than 1 element: has ", len(input), " elements")
 		}
-		el := <-input
-		wg.Add(1)
-		go func(w *sync.WaitGroup) {
-			fn(el, output, f)
-			w.Done()
-		}(&wg)
-		wg.Wait()
+		go func() {
+			for el := range tmpChan {
+				tmpSlice = append(tmpSlice, el)
+			}
+			done <- 1
+			close(done)
+		}()
+		fn(<-input, tmpChan, f)
+		<-done
+		output := make(chan int, len(tmpSlice))
+		for _, v := range tmpSlice {
+			output <- v
+		}
 		return output
 	}
 

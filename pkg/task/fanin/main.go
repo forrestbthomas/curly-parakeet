@@ -49,6 +49,7 @@ func (f *FanIn) Generator(fn task.TaskWork) task.TaskDefinition {
 			close(c)
 			w.Done()
 		}(&wg, output)
+		wg.Wait()
 		f.Set("state", 0)
 		return output
 	}

@@ -21,6 +21,7 @@ func ListOdds(i int, ch chan int, _ task.Tasker) {
 		}
 		i--
 	}
+	close(ch)
 }
 
 // Parallel
