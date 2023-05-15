@@ -1,35 +1,57 @@
 package pipeline
 
 import (
+	"fmt"
+
 	"github.com/forrestbthomas/curly-parakeet/pkg/task"
-	"github.com/forrestbthomas/curly-parakeet/pkg/types"
 )
 
 type Job struct {
-	Fn    types.TaskWork
+	Fn    task.TaskWork
 	Task  task.Tasker
 	Needs []task.Tasker
 }
 
 type Pipeliner interface {
-	Run([]types.TaskDefinition) chan int
+	Run([]task.TaskDefinition) chan int
+	HasNext() bool
+	Next() chan int
 }
 
 type Pipe struct {
-	TaskDefinitions []types.TaskDefinition
+	MutableTaskDefinitions   []task.TaskDefinition
+	ImmutableTaskDefinitions []task.TaskDefinition // how to enforce?
+}
+
+func (p Pipe) HasNext() bool {
+	return len(p.MutableTaskDefinitions) > 0
+}
+
+func (p *Pipe) Next() task.TaskDefinition {
+	task := p.MutableTaskDefinitions[0]
+	defs := p.MutableTaskDefinitions[1:]
+	p.MutableTaskDefinitions = defs
+	return task
 }
 
 func (p Pipe) Run(ch chan int) chan int {
-	for _, task := range p.TaskDefinitions {
-		ch = task(ch)
+	fmt.Println("run")
+	if !p.HasNext() {
+		return ch
 	}
-	return ch
+	task := p.Next()
+	return p.Run(task(ch))
 }
 
 func New(jobs []Job) Pipe {
-	defs := []types.TaskDefinition{}
+	defs := []task.TaskDefinition{}
+	copyDefs := []task.TaskDefinition{}
+	copy(defs, copyDefs)
 	for _, job := range jobs {
 		defs = append(defs, job.Task.Generator(job.Fn))
 	}
-	return Pipe{defs}
+	return Pipe{
+		defs,
+		copyDefs,
+	}
 }

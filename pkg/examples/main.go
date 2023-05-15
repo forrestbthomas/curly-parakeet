@@ -1,44 +1,47 @@
 package examples
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/forrestbthomas/curly-parakeet/pkg/task"
+)
 
 // Fan In
-func Sum(i int, ch chan int) {
-	j := <-ch
-	fmt.Println("adding", i, j)
-	ch <- i + j
+func Sum(i int, _ chan int, t task.Tasker) {
+	fmt.Println("adding", i, t.Get("state"))
+	t.Set("state", t.Get("state")+i)
 }
 
 // Fan Out
-func ListMultiples(i int, ch chan int) {
-	fmt.Println("listing multiples", i)
-	for j := i; j > 0; {
-		if j%2 == 0 {
-			ch <- j
+func ListOdds(i int, ch chan int, _ task.Tasker) {
+	fmt.Println("listing odds", i)
+	for i > 0 {
+		if i%2 != 0 {
+			ch <- i
 		}
-		j = j / 3
+		i--
 	}
 }
 
 // Parallel
-func Filter(i int, ch chan int) {
+func Filter(i int, ch chan int, _ task.Tasker) {
 	fmt.Println("filtering", i)
 	if i%2 != 0 {
 		ch <- i
 	}
 }
 
-func Doubler(i int, ch chan int) {
+func Doubler(i int, ch chan int, _ task.Tasker) {
 	fmt.Println("doubling", i)
 	ch <- i * 2
 }
 
-func Tripler(i int, ch chan int) {
+func Tripler(i int, ch chan int, _ task.Tasker) {
 	fmt.Println("tripling", i)
 	ch <- i * 3
 }
 
-func DoubleLen(i int, ch chan int) {
+func DoubleLen(i int, ch chan int, _ task.Tasker) {
 	fmt.Println("doubling length", i)
 	ch <- i
 	ch <- i

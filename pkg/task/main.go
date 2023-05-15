@@ -1,8 +1,11 @@
 package task
 
-import "github.com/forrestbthomas/curly-parakeet/pkg/types"
-
 type Tasker interface {
-	GetName() string
-	Generator(fn types.TaskWork) types.TaskDefinition
+	Generator(fn TaskWork) TaskDefinition
+	Get(string) int
+	Set(string, int)
 }
+
+type TaskState int
+type TaskWork func(int, chan int, Tasker)
+type TaskDefinition func(chan int) chan int

@@ -6,14 +6,15 @@ import (
 	"github.com/forrestbthomas/curly-parakeet/pkg/examples"
 	"github.com/forrestbthomas/curly-parakeet/pkg/pipeline"
 	fi "github.com/forrestbthomas/curly-parakeet/pkg/task/fanin"
+	fo "github.com/forrestbthomas/curly-parakeet/pkg/task/fanout"
 )
 
 func InputTask(ints []int) chan int {
 	output := make(chan int, len(ints))
-	defer close(output)
 	for _, val := range ints {
 		output <- val
 	}
+	fmt.Println("making input", len(output))
 	return output
 }
 
@@ -25,13 +26,24 @@ func main() {
 	jobs := []pipeline.Job{
 		{
 			Fn:    examples.Sum,
-			Task:  fi.Task{},
+			Task:  &fi.FanIn{},
+			Needs: nil,
+		},
+		{
+			Fn:    examples.ListOdds,
+			Task:  &fo.FanOut{},
 			Needs: nil,
 		},
 	}
 	pipe := pipeline.New(jobs)
 	ch := InputTask(ints)
+	close(ch)
 	out := pipe.Run(ch)
-	fmt.Println(<-out)
+	close(out)
+	fmt.Println(len(out))
+
+	for el := range out {
+		fmt.Println(el)
+	}
 
 }
