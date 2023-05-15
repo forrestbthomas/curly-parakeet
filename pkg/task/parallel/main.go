@@ -25,20 +25,18 @@ func (p *Parallel) Set(s string, v int) {
 	}
 }
 func (p *Parallel) Generator(fn task.TaskWork) task.TaskDefinition {
-	var wg sync.WaitGroup
-	output := make(chan int)
 	return func(input chan int) chan int {
+		var wg sync.WaitGroup
+		output := make(chan int, len(input))
+		wg.Add(len(input))
 		for val := range input {
-			wg.Add(1)
 			go func(v int, w *sync.WaitGroup) {
 				fn(v, output, p)
 				wg.Done()
 			}(val, &wg)
 		}
-		go func(w *sync.WaitGroup) {
-			w.Wait()
-			p.Set("state", 0)
-		}(&wg)
+		wg.Wait()
+		close(output)
 		return output
 	}
 }

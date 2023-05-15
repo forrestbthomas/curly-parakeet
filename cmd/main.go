@@ -36,8 +36,13 @@ func main() {
 			Needs: nil,
 		},
 		{
-			Fn:    examples.Doubler,
+			Fn:    examples.Tripler,
 			Task:  &p.Parallel{},
+			Needs: nil,
+		},
+		{
+			Fn:    examples.Sum,
+			Task:  &fi.FanIn{},
 			Needs: nil,
 		},
 	}
@@ -47,7 +52,6 @@ func main() {
 	close(ch)
 
 	out := pipe.Run(ch)
-	close(out)
 	for el := range out {
 		fmt.Println(el)
 	}

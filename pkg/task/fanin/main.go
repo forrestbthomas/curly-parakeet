@@ -46,11 +46,11 @@ func (f *FanIn) Generator(fn task.TaskWork) task.TaskDefinition {
 
 		go func(w *sync.WaitGroup, c chan int) {
 			c <- int(f.Get("state"))
-			close(c)
 			w.Done()
 		}(&wg, output)
 		wg.Wait()
 		f.Set("state", 0)
+		close(output)
 		return output
 	}
 
