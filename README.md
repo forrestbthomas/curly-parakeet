@@ -1,0 +1,2 @@
+# Curly Parakeet
+Golang data processing pipeline using channels. Absracts away the details of data fan in, fan out, and parallel processing. Contrived examples are given in the examples folder. Use cases and an expanded readme to come.
