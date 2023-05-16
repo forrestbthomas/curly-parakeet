@@ -45,6 +45,11 @@ func main() {
 			Task:  &fi.FanIn{},
 			Needs: nil,
 		},
+		{
+			Fn:    examples.ListOdds,
+			Task:  &fo.FanOut{},
+			Needs: nil,
+		},
 	}
 
 	pipe := pipeline.New(jobs)

@@ -21,7 +21,7 @@ func ListOdds(i int, ch chan int, _ task.Tasker) {
 		}
 		i--
 	}
-	close(ch)
+	close(ch) // required: impossible to know buffer len ahead of time, so sender must call close
 }
 
 // Parallel
@@ -40,10 +40,4 @@ func Doubler(i int, ch chan int, _ task.Tasker) {
 func Tripler(i int, ch chan int, _ task.Tasker) {
 	fmt.Println("tripling", i)
 	ch <- i * 3
-}
-
-func DoubleLen(i int, ch chan int, _ task.Tasker) {
-	fmt.Println("doubling length", i)
-	ch <- i
-	ch <- i
 }
